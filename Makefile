@@ -1,8 +1,8 @@
 install:
 	npm install
 
-start:
-	npm run babel-node src/bin/gendiff.js
+run:
+	npx babel-node -- src/bin/gendiff.js
 
 build:
 	rm -rf dist
@@ -16,4 +16,6 @@ test:
 	npm test
 
 lint:
-	npm run eslint .
+	npx eslint .
+
+.PHONY: test

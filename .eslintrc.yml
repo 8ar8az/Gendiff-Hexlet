@@ -1,0 +1,26 @@
+---
+parser: babel-eslint
+
+env:
+  node: true
+  jest: true
+
+plugins:
+  - jest
+  - babel
+  - lodash
+
+extends:
+  - airbnb-base
+  - plugin:jest/recommended
+  - plugin:lodash/recommended
+
+rules:
+  no-console: off
+  lodash/import-scope: off
+  lodash/prefer-lodash-method:
+    - 2
+    - ignoreMethods:
+      - map
+      - filter
+      - reduce
