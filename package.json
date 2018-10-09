@@ -1,0 +1,53 @@
+{
+  "name": "@8ar8az/gendiff",
+  "version": "0.1.1",
+  "bin": {
+    "gendiff": "dist/bin/gendiff.js"
+  },
+  "description": "CLI utility for build and formated print the difference between two config files",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "babel-node": "babel-node",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "eslint": "eslint",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/8ar8az/Gendiff-Hexlet.git"
+  },
+  "keywords": [
+    "cli",
+    "diff",
+    "config",
+    "ini",
+    "yml",
+    "json"
+  ],
+  "author": "8ar8az",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/8ar8az/Gendiff-Hexlet/issues"
+  },
+  "homepage": "https://github.com/8ar8az/Gendiff-Hexlet#readme",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^10.0.1",
+    "babel-preset-env": "^1.7.0",
+    "eslint": "^5.6.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.24.1",
+    "eslint-plugin-lodash": "^3.1.0",
+    "eslint-plugin-unicorn": "^6.0.1",
+    "jest": "^23.6.0"
+  },
+  "dependencies": {
+    "commander": "^2.18.0"
+  }
+}
