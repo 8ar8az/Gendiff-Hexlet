@@ -24,3 +24,4 @@ rules:
       - map
       - filter
       - reduce
+      - find
