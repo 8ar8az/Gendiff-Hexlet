@@ -3,7 +3,7 @@
 import program from 'commander';
 
 program
-  .version('0.1.0', '-v, --version')
+  .version('0.1.1', '-v, --version')
   .description('CLI utility for build and formated print the difference between two config files')
   .option('-f, --format [type]', 'Choose output format')
   .arguments('<originalConfigPath> <updatedConfigPath>')
