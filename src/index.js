@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
+import parsers from './parsers';
 
 const formatingAst = (ast) => {
   const formatingAstNode = (astNode) => {
@@ -64,8 +65,11 @@ const getFileData = (pathname) => {
 };
 
 export default (beforeConfigFilePath, afterConfigFilePath) => {
-  const configBefore = JSON.parse(getFileData(beforeConfigFilePath));
-  const configAfter = JSON.parse(getFileData(afterConfigFilePath));
+  const beforeConfigExtension = path.extname(beforeConfigFilePath);
+  const afterConfigExtension = path.extname(afterConfigFilePath);
+
+  const configBefore = parsers[beforeConfigExtension](getFileData(beforeConfigFilePath));
+  const configAfter = parsers[afterConfigExtension](getFileData(afterConfigFilePath));
 
   const diffAST = buildDiffAST(configBefore, configAfter);
 
