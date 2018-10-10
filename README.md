@@ -7,7 +7,7 @@ CLI utility for build and formated print the difference between two config files
 
 ### Install
 
-> npm install -g @8ar8az/gendiff
+> npm install @8ar8az/gendiff
 
 ### Support of format config files
 
@@ -29,4 +29,4 @@ Options:
 
 ### Work demonstration
 
-[Asciinema PLAY](https://asciinema.org/a/HpuHKc94l4xWleNNeU9Wua5sm)
+[Asciinema PLAY](https://asciinema.org/a/kmSU3ZusSpASn34jWf5N2yiqu)

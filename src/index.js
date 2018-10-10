@@ -2,54 +2,74 @@ import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
 import getParser from './parsers';
+import renderAst from './render';
 
-const astNodesFormatingMethods = {
-  added: node => `  + ${node.name}: ${node.valueAfter}`,
-  removed: node => `  - ${node.name}: ${node.valueBefore}`,
-  modified: node => `  + ${node.name}: ${node.valueAfter}\n  - ${node.name}: ${node.valueBefore}`,
-  unmodified: node => `    ${node.name}: ${node.valueAfter}`,
-};
-
-const formatingAst = (ast) => {
-  const formatingAstNode = astNode => astNodesFormatingMethods[astNode.type](astNode);
-  return ['{', ...ast.map(formatingAstNode), '}'].join('\n');
-};
-
-const astNodesTypewriters = [
+const valuesTypewriters = [
   {
-    check: (configBefore, configAfter, key) => _.has(configBefore, key) && !_.has(configAfter, key),
-    typify: node => ({ ...node, type: 'removed' }),
+    check: value => _.isObject(value),
+    typify: value => ({ type: 'map', value }),
   },
   {
-    check: (configBefore, configAfter, key) => !_.has(configBefore, key) && _.has(configAfter, key),
-    typify: node => ({ ...node, type: 'added' }),
-  },
-  {
-    check: (configBefore, configAfter, key) => configBefore[key] !== configAfter[key],
-    typify: node => ({ ...node, type: 'modified' }),
-  },
-  {
-    check: (configBefore, configAfter, key) => configBefore[key] === configAfter[key],
-    typify: node => ({ ...node, type: 'unmodified' }),
+    check: value => !_.isObject(value),
+    typify: value => ({ type: 'primitive', value }),
   },
 ];
 
-const buildDiffAST = (configBefore, configAfter) => {
+const typifyValue = (value) => {
+  const { typify } = valuesTypewriters.find(({ check }) => check(value));
+  return typify(value);
+};
+
+const astNodesBuilders = [
+  {
+    check: (configBefore, configAfter, key) => _.has(configBefore, key) && !_.has(configAfter, key),
+    build: valueBefore => ({ type: 'removed', valueBefore: typifyValue(valueBefore), valueAfter: null }),
+  },
+
+  {
+    check: (configBefore, configAfter, key) => !_.has(configBefore, key) && _.has(configAfter, key),
+    build: (valueBefore, valueAfter) => ({ type: 'added', valueBefore: null, valueAfter: typifyValue(valueAfter) }),
+  },
+
+  {
+    check: (configBefore, configAfter, key) => configBefore[key] === configAfter[key],
+    build: valueBefore => ({ type: 'unmodified', valueBefore: typifyValue(valueBefore), valueAfter: typifyValue(valueBefore) }),
+  },
+
+  {
+    check: (configBefore, configAfter, key) => {
+      const valueBefore = configBefore[key];
+      const valueAfter = configAfter[key];
+      return _.isObject(valueBefore) && _.isObject(valueAfter);
+    },
+    build: (valueBefore, valueAfter, buildDiffAst) => {
+      const children = buildDiffAst(valueBefore, valueAfter);
+      return {
+        type: 'composited',
+        children,
+        valueBefore: null,
+        valueAfter: null,
+      };
+    },
+  },
+
+  {
+    check: (configBefore, configAfter, key) => configBefore[key] !== configAfter[key],
+    build: (valueBefore, valueAfter) => ({ type: 'modified', valueBefore: typifyValue(valueBefore), valueAfter: typifyValue(valueAfter) }),
+  },
+];
+
+const buildDiffAst = (configBefore, configAfter) => {
   const keysInConfigs = _.union(_.keys(configBefore), _.keys(configAfter));
 
-  const makeAstNode = (key) => {
-    const valueBefore = configBefore[key];
-    const valueAfter = configAfter[key];
+  const buildAstNode = (key) => {
+    const { build } = astNodesBuilders.find(({ check }) => check(configBefore, configAfter, key));
+    const astNode = build(configBefore[key], configAfter[key], buildDiffAst);
 
-    const node = { valueBefore, valueAfter, name: key };
-
-    const { typify } = astNodesTypewriters
-      .find(({ check }) => check(configBefore, configAfter, key));
-
-    return typify(node);
+    return { ...astNode, name: key };
   };
 
-  return keysInConfigs.map(makeAstNode);
+  return keysInConfigs.map(buildAstNode);
 };
 
 const getFileData = pathname => fs.readFileSync(pathname, 'UTF-8');
@@ -61,7 +81,7 @@ export default (beforeConfigFilePath, afterConfigFilePath) => {
   const configBefore = getParser(beforeConfigExtension)(getFileData(beforeConfigFilePath));
   const configAfter = getParser(afterConfigExtension)(getFileData(afterConfigFilePath));
 
-  const diffAST = buildDiffAST(configBefore, configAfter);
+  const diffAST = buildDiffAst(configBefore, configAfter);
 
-  return formatingAst(diffAST);
+  return renderAst(diffAST);
 };

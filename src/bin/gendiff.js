@@ -7,7 +7,7 @@ import getConfigsDifference from '..';
 const getAbsolutePath = pathname => path.resolve(process.cwd(), pathname);
 
 program
-  .version('0.4.0', '-v, --version')
+  .version('0.5.0', '-v, --version')
   .description('CLI utility for build and formated print the difference between two config files')
   .option('-f, --format [type]', 'Choose output format')
   .arguments('<originalConfigPath> <updatedConfigPath>')
