@@ -5,6 +5,28 @@
 
 CLI utility for build and formated print the difference between two config files.
 
+### Install
+
+> npm install -g @8ar8az/gendiff
+
+### Support of format config files
+
+- JSON
+- YAML
+- INI
+
+### Usage
+
+```
+Usage: gendiff [options] <originalConfigPath> <updatedConfigPath>
+
+Options:
+
+  -v, --version        output the version number
+  -f, --format [type]  Choose output format
+  -h, --help           output usage information
+```
+
 ### Work demonstration
 
-[Asciinema PLAY](https://asciinema.org/a/oJKVtn28duUeXysdxSbPDUlZI)
+[Asciinema PLAY](https://asciinema.org/a/HpuHKc94l4xWleNNeU9Wua5sm)
