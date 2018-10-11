@@ -4,42 +4,64 @@ const standardIndentSize = 4;
 
 const getIndent = depth => _.repeat(' ', depth * standardIndentSize);
 
-const valueRenderMethods = {
-  primitive: ({ value }) => value,
+const formatCharacters = {
+  added: '+',
+  removed: '-',
+  unmodified: ' ',
+};
 
-  map: ({ value }, depth) => {
+const blockCharacters = {
+  opened: '{',
+  closed: '}',
+};
+
+const getValueType = (value) => {
+  if (_.isObject(value)) {
+    return 'map';
+  }
+  return 'primitive';
+};
+
+const valueRenderMethods = {
+  primitive: _.identity,
+
+  map: (value, depth) => {
     const indent = getIndent(depth);
     const renderKeyValuePair = key => `${indent}    ${key}: ${value[key]}`;
     const renderedKeyValuePairs = _.keys(value).map(renderKeyValuePair);
-    return ['{', ...renderedKeyValuePairs, `${indent}}`].join('\n');
+    return [blockCharacters.opened, ...renderedKeyValuePairs, `${indent}${blockCharacters.closed}`].join('\n');
   },
 };
 
-const astNodesRenderMethods = {
-  added: ({ name, valueAfter }, depth) => {
-    const renderedValueAfter = valueRenderMethods[valueAfter.type](valueAfter, depth + 1);
-    const indent = getIndent(depth);
-    return `${indent}  + ${name}: ${renderedValueAfter}`;
-  },
+const getValueString = (name, value, depth, formatCharacter) => {
+  const valueType = getValueType(value);
+  const renderedValue = valueRenderMethods[valueType](value, depth + 1);
+  const indent = getIndent(depth);
+  return `${indent}  ${formatCharacter} ${name}: ${renderedValue}`;
+};
 
-  removed: ({ name, valueBefore }, depth) => {
-    const renderedValueBefore = valueRenderMethods[valueBefore.type](valueBefore, depth + 1);
-    const indent = getIndent(depth);
-    return `${indent}  - ${name}: ${renderedValueBefore}`;
-  },
+const astNodesRenderMethods = {
+  added: (
+    { name, valueAfter },
+    depth,
+  ) => getValueString(name, valueAfter, depth, formatCharacters.added),
+
+  removed: (
+    { name, valueBefore },
+    depth,
+  ) => getValueString(name, valueBefore, depth, formatCharacters.removed),
 
   modified: ({ name, valueAfter, valueBefore }, depth) => {
-    const renderedValueBefore = valueRenderMethods[valueBefore.type](valueBefore, depth + 1);
-    const renderedValueAfter = valueRenderMethods[valueAfter.type](valueAfter, depth + 1);
-    const indent = getIndent(depth);
-    return `${indent}  - ${name}: ${renderedValueBefore}\n${indent}  + ${name}: ${renderedValueAfter}`;
+    const valueBeforeString = getValueString(name, valueBefore, depth, formatCharacters.removed);
+    const valueAfterString = getValueString(name, valueAfter, depth, formatCharacters.added);
+
+    return [valueBeforeString, valueAfterString];
   },
 
-  unmodified: ({ name, valueBefore }, depth) => {
-    const renderedValueBefore = valueRenderMethods[valueBefore.type](valueBefore, depth + 1);
-    const indent = getIndent(depth);
-    return `${indent}    ${name}: ${renderedValueBefore}`;
-  },
+  unmodified: (
+    { name, valueBefore },
+    depth,
+  ) => getValueString(name, valueBefore, depth, formatCharacters.unmodified),
 
   composited: ({ name, children }, depth, renderAst) => {
     const indent = getIndent(depth);
@@ -49,10 +71,10 @@ const astNodesRenderMethods = {
 
 const renderAst = (ast, depth = 0) => {
   const renderAstNode = astNode => astNodesRenderMethods[astNode.type](astNode, depth, renderAst);
-  const renderedAst = ast.map(renderAstNode);
+  const renderedAst = _.flatten(ast.map(renderAstNode));
 
   const indent = getIndent(depth);
-  return ['{', ...renderedAst, `${indent}}`].join('\n');
+  return [blockCharacters.opened, ...renderedAst, `${indent}${blockCharacters.closed}`].join('\n');
 };
 
 export default renderAst;

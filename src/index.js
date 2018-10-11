@@ -4,36 +4,20 @@ import _ from 'lodash';
 import getParser from './parsers';
 import renderAst from './render';
 
-const valuesTypewriters = [
-  {
-    check: value => _.isObject(value),
-    typify: value => ({ type: 'map', value }),
-  },
-  {
-    check: value => !_.isObject(value),
-    typify: value => ({ type: 'primitive', value }),
-  },
-];
-
-const typifyValue = (value) => {
-  const { typify } = valuesTypewriters.find(({ check }) => check(value));
-  return typify(value);
-};
-
 const astNodesBuilders = [
   {
     check: (configBefore, configAfter, key) => _.has(configBefore, key) && !_.has(configAfter, key),
-    build: valueBefore => ({ type: 'removed', valueBefore: typifyValue(valueBefore), valueAfter: null }),
+    build: valueBefore => ({ type: 'removed', valueBefore }),
   },
 
   {
     check: (configBefore, configAfter, key) => !_.has(configBefore, key) && _.has(configAfter, key),
-    build: (valueBefore, valueAfter) => ({ type: 'added', valueBefore: null, valueAfter: typifyValue(valueAfter) }),
+    build: (valueBefore, valueAfter) => ({ type: 'added', valueAfter }),
   },
 
   {
     check: (configBefore, configAfter, key) => configBefore[key] === configAfter[key],
-    build: valueBefore => ({ type: 'unmodified', valueBefore: typifyValue(valueBefore), valueAfter: typifyValue(valueBefore) }),
+    build: valueBefore => ({ type: 'unmodified', valueBefore, valueAfter: valueBefore }),
   },
 
   {
@@ -44,18 +28,13 @@ const astNodesBuilders = [
     },
     build: (valueBefore, valueAfter, buildDiffAst) => {
       const children = buildDiffAst(valueBefore, valueAfter);
-      return {
-        type: 'composited',
-        children,
-        valueBefore: null,
-        valueAfter: null,
-      };
+      return { type: 'composited', children };
     },
   },
 
   {
     check: (configBefore, configAfter, key) => configBefore[key] !== configAfter[key],
-    build: (valueBefore, valueAfter) => ({ type: 'modified', valueBefore: typifyValue(valueBefore), valueAfter: typifyValue(valueAfter) }),
+    build: (valueBefore, valueAfter) => ({ type: 'modified', valueBefore, valueAfter }),
   },
 ];
 
