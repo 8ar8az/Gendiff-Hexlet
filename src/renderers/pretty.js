@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import getValueType from './value-typify';
 
 const standardIndentSize = 4;
 
@@ -15,15 +16,9 @@ const blockCharacters = {
   closed: '}',
 };
 
-const getValueType = (value) => {
-  if (_.isObject(value)) {
-    return 'map';
-  }
-  return 'primitive';
-};
-
 const valueRenderMethods = {
   primitive: _.identity,
+  string: _.identity,
 
   map: (value, depth) => {
     const indent = getIndent(depth);

@@ -23,10 +23,11 @@ Usage: gendiff [options] <originalConfigPath> <updatedConfigPath>
 Options:
 
   -v, --version        output the version number
-  -f, --format [type]  Choose output format
+  -f, --format [type]  Choose output format: pretty or plain (default: pretty)
   -h, --help           output usage information
+
 ```
 
 ### Work demonstration
 
-[Asciinema PLAY](https://asciinema.org/a/kmSU3ZusSpASn34jWf5N2yiqu)
+[![asciicast](https://asciinema.org/a/PeH4JHJHXesd5eTZxEjowlNdV.png)](https://asciinema.org/a/PeH4JHJHXesd5eTZxEjowlNdV)

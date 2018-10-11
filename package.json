@@ -1,6 +1,6 @@
 {
   "name": "@8ar8az/gendiff",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
   },

@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
 import getParser from './parsers';
-import renderAst from './render';
+import renderers from './renderers';
 
 const astNodesBuilders = [
   {
@@ -53,7 +53,7 @@ const buildDiffAst = (configBefore, configAfter) => {
 
 const getFileData = pathname => fs.readFileSync(pathname, 'UTF-8');
 
-export default (beforeConfigFilePath, afterConfigFilePath) => {
+export default (beforeConfigFilePath, afterConfigFilePath, renderFormat) => {
   const beforeConfigExtension = path.extname(beforeConfigFilePath);
   const afterConfigExtension = path.extname(afterConfigFilePath);
 
@@ -62,5 +62,5 @@ export default (beforeConfigFilePath, afterConfigFilePath) => {
 
   const diffAST = buildDiffAst(configBefore, configAfter);
 
-  return renderAst(diffAST);
+  return renderers[renderFormat](diffAST);
 };
