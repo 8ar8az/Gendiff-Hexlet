@@ -1,6 +1,6 @@
 {
   "name": "@8ar8az/gendiff",
-  "version": "0.6.0",
+  "version": "1.0.0",
   "bin": {
     "gendiff": "dist/bin/gendiff.js"
   },
@@ -23,6 +23,12 @@
     "yml",
     "json"
   ],
+  "jest": {
+    "collectCoverage": true,
+    "coverageReporters": ["lcov"],
+    "collectCoverageFrom": ["src/**/*.js"],
+    "coveragePathIgnorePatterns": ["<rootDir>/src/bin"]
+  },
   "author": "8ar8az",
   "license": "ISC",
   "bugs": {
